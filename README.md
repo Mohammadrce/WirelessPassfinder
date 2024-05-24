@@ -10,6 +10,7 @@ I will also write for the Linux side later
 Clone or download the repository
 Run the script using Python: python wireless_passfinder.py
 The script will display a list of WiFi profiles and their corresponding passwords
+You can also get exe output with pyinstaller
 ## Note
 This script requires the iwgetobj command to be installed on your system. If you don't have it installed, you can install it using your package manager.
 This script only retrieves passwords stored on your system and does not attempt to crack or decrypt passwords.
