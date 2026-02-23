@@ -1,0 +1,25 @@
+Profile HomeWiFi on interface Wi-Fi:
+=======================================================================
+Applied: All User Profile
+
+Profile information
+-------------------
+    Version                : 1
+    Type                   : Wireless LAN
+    Name                   : HomeWiFi
+    Control options        :
+        Connection mode    : Connect automatically
+
+Security settings
+-----------------
+    Authentication         : WPA2-Personal
+    Cipher                 : CCMP
+    Security key           : Present
+
+Cost settings
+-------------
+    Cost                   : Unrestricted
+
+Security key details
+--------------------
+    Key Content            : supersecret123
