@@ -1,0 +1,10 @@
+Profiles on interface Wi-Fi:
+Group policy profiles (read only)
+---------------------------------
+    <None>
+
+User profiles
+-------------
+    All User Profile     : HomeWiFi
+    All User Profile     : OfficeNet
+    All User Profile     : CoffeeShop

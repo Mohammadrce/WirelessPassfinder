@@ -1,0 +1,9 @@
+Profile OfficeNet on interface Wi-Fi:
+=======================================================================
+Applied: All User Profile
+
+Security settings
+-----------------
+    Authentication         : WPA2-Enterprise
+    Cipher                 : GCMP
+    Security key           : Absent
