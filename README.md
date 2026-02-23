@@ -1,22 +1,96 @@
 # WirelessPassfinder
-## Overview
-WirelessPassfinder is a Python script that helps you discover and retrieve the WiFi passwords stored on your system. It uses the iwgetobj command to fetch the password information and displays it in a user-friendly format.
+
+[![CI](https://github.com/Mohammadrce/WirelessPassfinder/actions/workflows/python-app.yml/badge.svg)](https://github.com/Mohammadrce/WirelessPassfinder/actions/workflows/python-app.yml)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
+
+WirelessPassfinder is a Windows WiFi profile auditor CLI.
+It reads saved WLAN profiles from your own machine via `netsh` and shows them with secure defaults.
+
+## Why this exists
+
+- Audit your stored WiFi profiles quickly.
+- Export profile metadata to JSON for personal backup workflows.
+- Keep plaintext keys hidden by default to reduce accidental leakage in screenshots or logs.
 
 ## Features
-Retrieves WiFi passwords stored on your system
-Displays password information for each profile
-I will also write for the Linux side later
+
+- `wpfinder list`: show all saved profiles in table or JSON
+- `wpfinder show <profile>`: inspect one profile
+- `wpfinder export --output <file.json>`: export all profiles to JSON
+- Password masking by default (`********`)
+- Optional plaintext output only with explicit flags (`--show-keys` / `--show-key`)
+
+## Requirements
+
+- Windows (v1 target)
+- Python 3.10+
+
+## Installation
+
+### With `pipx` (recommended)
+
+```bash
+pipx install git+https://github.com/Mohammadrce/WirelessPassfinder.git
+```
+
+### From source
+
+```bash
+git clone git@github.com:Mohammadrce/WirelessPassfinder.git
+cd WirelessPassfinder
+python -m pip install -e .
+```
+
 ## Usage
-Clone or download the repository
-Run the script using Python: python wireless_passfinder.py
-The script will display a list of WiFi profiles and their corresponding passwords
-You can also get exe output with pyinstaller
-## Note
-This script requires the iwgetobj command to be installed on your system. If you don't have it installed, you can install it using your package manager.
-This script only retrieves passwords stored on your system and does not attempt to crack or decrypt passwords.
-Please use this script responsibly and only for legitimate purposes.
-## License
-This project is licensed under the MIT License.
+
+```bash
+wpfinder list
+wpfinder list --show-keys
+wpfinder list --json
+wpfinder list --filter Home
+
+wpfinder show "HomeWiFi"
+wpfinder show "HomeWiFi" --show-key
+wpfinder show "HomeWiFi" --json
+
+wpfinder export --output wifi_profiles.json
+wpfinder export --output wifi_profiles_plain.json --show-keys
+```
+
+## Security notice
+
+- This tool is for auditing credentials already stored on your own system.
+- It does not crack, decrypt, or attack networks.
+- Use plaintext password flags carefully.
+
+## Development
+
+```bash
+python -m pip install -e .[dev]
+ruff check .
+mypy src
+pytest
+```
+
+## Roadmap
+
+- Improve localization handling for non-English `netsh` output
+- Add optional executable packaging workflow
+- Evaluate Linux/macOS support in a future major version
 
 ## Contributing
-If you'd like to contribute to this project, please feel free to submit a pull request or report any issues you encounter.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+MIT - see [LICENSE](LICENSE).
+
+---
+
+## فارسی (خلاصه)
+
+این ابزار برای ممیزی پروفایل‌های وای‌فای ذخیره‌شده روی ویندوز است.
+به‌صورت پیش‌فرض رمزها را ماسک می‌کند و فقط با فلگ صریح رمز واقعی را نشان می‌دهد.
+برای مشارکت، فایل `CONTRIBUTING.md` را ببینید.
