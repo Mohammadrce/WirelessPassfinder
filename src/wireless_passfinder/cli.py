@@ -7,7 +7,11 @@ from collections.abc import Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 
-from wireless_passfinder.formatters import format_profile_details, format_profiles_table
+from wireless_passfinder.formatters import (
+    format_profile_details,
+    format_profile_names_table,
+    format_profiles_table,
+)
 from wireless_passfinder.netsh_adapter import (
     NetshAdapter,
     NetshExecutionError,
@@ -28,7 +32,12 @@ def build_parser() -> argparse.ArgumentParser:
     list_parser.add_argument(
         "--show-keys",
         action="store_true",
-        help="Show plaintext passwords in output.",
+        help="Show plaintext passwords (requires --detailed).",
+    )
+    list_parser.add_argument(
+        "--detailed",
+        action="store_true",
+        help="Show full profile metadata and password field.",
     )
     list_parser.add_argument(
         "--json",
@@ -71,17 +80,34 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _handle_list(args: argparse.Namespace, adapter: NetshAdapter) -> int:
-    profiles = adapter.list_profiles_detailed()
-    if args.name_filter:
-        query = args.name_filter.lower()
-        profiles = [profile for profile in profiles if query in profile.name.lower()]
+    if args.show_keys and not args.detailed:
+        print("Error: --show-keys can only be used with --detailed.", file=sys.stderr)
+        return 2
 
-    if args.json:
-        payload = [profile.to_dict(show_key_material=args.show_keys) for profile in profiles]
-        print(json.dumps(payload, indent=2))
+    if args.detailed:
+        profiles = adapter.list_profiles_detailed()
+        if args.name_filter:
+            query = args.name_filter.lower()
+            profiles = [profile for profile in profiles if query in profile.name.lower()]
+
+        if args.json:
+            payload = [profile.to_dict(show_key_material=args.show_keys) for profile in profiles]
+            print(json.dumps(payload, indent=2))
+            return 0
+
+        print(format_profiles_table(profiles, show_key_material=args.show_keys))
         return 0
 
-    print(format_profiles_table(profiles, show_key_material=args.show_keys))
+    profile_names = adapter.list_profile_names()
+    if args.name_filter:
+        query = args.name_filter.lower()
+        profile_names = [name for name in profile_names if query in name.lower()]
+
+    if args.json:
+        print(json.dumps(profile_names, indent=2))
+        return 0
+
+    print(format_profile_names_table(profile_names))
     return 0
 
 
