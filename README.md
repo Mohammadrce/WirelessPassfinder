@@ -4,38 +4,51 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
 
-WirelessPassfinder is a Windows WiFi profile auditor CLI.
-It reads saved WLAN profiles from your own machine via `netsh` and shows them with secure defaults.
+Windows CLI to audit saved WiFi profiles and export credentials with safe-by-default masking.
 
-## Why this exists
+Who this is for:
+- Windows users who want to review saved WiFi profiles on their own machine.
+- Developers/admins who want quick, scriptable JSON exports.
 
-- Audit your stored WiFi profiles quickly.
-- Export profile metadata to JSON for personal backup workflows.
-- Keep plaintext keys hidden by default to reduce accidental leakage in screenshots or logs.
+## Table of Contents
 
-## Features
+- [What It Does](#what-it-does)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Security and Responsible Use](#security-and-responsible-use)
+- [Troubleshooting](#troubleshooting)
+- [Development](#development)
+- [Upgrade Notes (v0.2.1)](#upgrade-notes-v021)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
+- [فارسی (خلاصه)](#فارسی-خلاصه)
 
-- `wpfinder list`: fast list of profile names (table or JSON)
-- `wpfinder list --detailed`: full profile metadata and password field
-- `wpfinder show <profile>`: inspect one profile
-- `wpfinder export --output <file.json>`: export all profiles to JSON
+## What It Does
+
+`WirelessPassfinder` is a WiFi profile auditor for Windows.
+It reads WLAN profile data from your local machine using `netsh` and provides:
+
+- Fast profile listing (`wpfinder list`)
+- Detailed profile inspection (`wpfinder show`)
+- JSON export for backup/automation (`wpfinder export`)
 - Password masking by default (`********`)
-- Optional plaintext output only with explicit flags (`--detailed --show-keys` / `--show-key`)
 
 ## Requirements
 
-- Windows (v1 target)
+- Windows (v1 scope)
 - Python 3.10+
 
 ## Installation
 
-### With `pipx` (recommended)
+### Option 1: pipx (recommended)
 
 ```bash
 pipx install git+https://github.com/Mohammadrce/WirelessPassfinder.git
 ```
 
-### From source
+### Option 2: from source
 
 ```bash
 git clone git@github.com:Mohammadrce/WirelessPassfinder.git
@@ -43,35 +56,88 @@ cd WirelessPassfinder
 python -m pip install -e .
 ```
 
+### Verify installation
+
+```bash
+wpfinder --help
+```
+
 ## Usage
+
+### 1) List profiles quickly (fast path)
 
 ```bash
 wpfinder list
 wpfinder list --json
 wpfinder list --filter Home
+```
+
+### 2) List full details
+
+```bash
 wpfinder list --detailed
+wpfinder list --detailed --json
+```
+
+### 3) Show plaintext keys intentionally
+
+Warning: this prints sensitive credentials.
+
+```bash
 wpfinder list --detailed --show-keys
-
-wpfinder show "HomeWiFi"
 wpfinder show "HomeWiFi" --show-key
-wpfinder show "HomeWiFi" --json
+```
 
+Notes:
+- `--show-keys` is valid for `list` only when `--detailed` is present.
+- `wpfinder list --show-keys` returns an explicit error by design.
+
+### 4) Inspect one profile
+
+```bash
+wpfinder show "HomeWiFi"
+wpfinder show "HomeWiFi" --json
+```
+
+### 5) Export JSON backup
+
+```bash
 wpfinder export --output wifi_profiles.json
 wpfinder export --output wifi_profiles_plain.json --show-keys
 ```
 
-## Upgrade notes (v0.2.1)
+## Security and Responsible Use
 
-- `wpfinder list` is now fast-by-default and prints profile names only.
-- Use `wpfinder list --detailed` for authentication/cipher/key/password columns.
-- `--show-keys` now requires `--detailed` for `list`.
-- Legacy `python wifi.py` entry path has been removed.
+- This tool only reads credentials already stored on your own Windows system.
+- It does not crack, brute-force, decrypt, or attack networks.
+- Use plaintext key flags only when necessary.
+- Avoid sharing terminal output or exported files that contain real passwords.
 
-## Security notice
+## Troubleshooting
 
-- This tool is for auditing credentials already stored on your own system.
-- It does not crack, decrypt, or attack networks.
-- Use plaintext password flags carefully.
+### Non-Windows systems
+
+The tool is Windows-only in v1. On non-Windows systems, it exits with a clear unsupported-platform error.
+
+### `netsh` not available
+
+If Windows cannot run `netsh`, ensure networking tools are available on your system image and run from a normal Windows shell.
+
+### Missing key output / access limitations
+
+Some environments may require appropriate privileges to reveal plaintext key material (`key=clear` behavior in `netsh`).
+
+### Localization caveat
+
+`netsh` output can vary by system language. Parsing is optimized for common output formats and may need adjustments on non-English environments.
+
+### Local pytest plugin conflicts
+
+If global pytest plugins interfere with local test runs, use:
+
+```bash
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest
+```
 
 ## Development
 
@@ -82,10 +148,17 @@ mypy src
 pytest
 ```
 
+## Upgrade Notes (v0.2.1)
+
+- `wpfinder list` is fast-by-default and prints profile names only.
+- Use `wpfinder list --detailed` for auth/cipher/key/password fields.
+- For `list`, `--show-keys` now requires `--detailed`.
+- Legacy `python wifi.py` entry path was removed.
+
 ## Roadmap
 
-- Improve localization handling for non-English `netsh` output
-- Add optional executable packaging workflow
+- Improve parsing reliability for more localized `netsh` outputs
+- Optional executable distribution workflow
 - Evaluate Linux/macOS support in a future major version
 
 ## Contributing
@@ -100,6 +173,6 @@ MIT - see [LICENSE](LICENSE).
 
 ## فارسی (خلاصه)
 
-این ابزار برای ممیزی پروفایل‌های وای‌فای ذخیره‌شده روی ویندوز است.
-به‌صورت پیش‌فرض رمزها را ماسک می‌کند و فقط با فلگ صریح رمز واقعی را نشان می‌دهد.
-برای مشارکت، فایل `CONTRIBUTING.md` را ببینید.
+این ابزار یک CLI ویندوزی برای ممیزی پروفایل‌های وای‌فای ذخیره‌شده روی سیستم خودت است.
+خروجی رمزها به‌صورت پیش‌فرض ماسک می‌شود و فقط با فلگ‌های صریح نمایش داده می‌شود.
+برای دیدن جزئیات کامل از `--detailed` و برای نمایش رمز واقعی با مسئولیت خودت از `--show-key` یا `--show-keys` استفاده کن.
