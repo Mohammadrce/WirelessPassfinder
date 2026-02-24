@@ -5,6 +5,19 @@ from collections.abc import Iterable
 from wireless_passfinder.models import WifiProfile
 
 
+def format_profile_names_table(profile_names: Iterable[str]) -> str:
+    names = list(profile_names)
+    if not names:
+        return "No WiFi profiles found."
+
+    header = "Profile"
+    width = max(len(header), *(len(name) for name in names))
+    header_line = header.ljust(width)
+    separator_line = "-" * width
+    body = [name.ljust(width) for name in names]
+    return "\n".join([header_line, separator_line, *body])
+
+
 def format_profiles_table(
     profiles: Iterable[WifiProfile],
     *,

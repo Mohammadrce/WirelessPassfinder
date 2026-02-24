@@ -9,7 +9,8 @@ from wireless_passfinder.netsh_adapter import NotSupportedOSError, ProfileNotFou
 
 
 class FakeAdapter:
-    def list_profiles_detailed(self) -> list[WifiProfile]:
+    @staticmethod
+    def _profiles() -> list[WifiProfile]:
         return [
             WifiProfile(
                 name="HomeWiFi",
@@ -27,31 +28,85 @@ class FakeAdapter:
             ),
         ]
 
+    def list_profile_names(self) -> list[str]:
+        return [profile.name for profile in self._profiles()]
+
+    def list_profiles_detailed(self) -> list[WifiProfile]:
+        return self._profiles()
+
     def get_profile(self, profile_name: str) -> WifiProfile:
         if profile_name == "HomeWiFi":
-            return self.list_profiles_detailed()[0]
+            return self._profiles()[0]
         raise ProfileNotFoundError(f'WiFi profile "{profile_name}" was not found.')
 
 
-def test_list_masks_password_by_default(monkeypatch, capsys) -> None:
+def test_list_default_prints_name_only(monkeypatch, capsys) -> None:
     monkeypatch.setattr("wireless_passfinder.cli.NetshAdapter", lambda: FakeAdapter())
 
     exit_code = main(["list"])
 
     captured = capsys.readouterr()
     assert exit_code == 0
+    assert "HomeWiFi" in captured.out
+    assert "OfficeNet" in captured.out
+    assert "Authentication" not in captured.out
+    assert "secret-home" not in captured.out
+
+
+def test_list_json_default_returns_names_only(monkeypatch, capsys) -> None:
+    monkeypatch.setattr("wireless_passfinder.cli.NetshAdapter", lambda: FakeAdapter())
+
+    exit_code = main(["list", "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert payload == ["HomeWiFi", "OfficeNet"]
+
+
+def test_list_detailed_masks_password_by_default(monkeypatch, capsys) -> None:
+    monkeypatch.setattr("wireless_passfinder.cli.NetshAdapter", lambda: FakeAdapter())
+
+    exit_code = main(["list", "--detailed"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "Authentication" in captured.out
     assert "********" in captured.out
     assert "secret-home" not in captured.out
 
 
-def test_list_show_keys(monkeypatch, capsys) -> None:
+def test_list_detailed_show_keys(monkeypatch, capsys) -> None:
+    monkeypatch.setattr("wireless_passfinder.cli.NetshAdapter", lambda: FakeAdapter())
+
+    exit_code = main(["list", "--detailed", "--show-keys"])
+
+    captured = capsys.readouterr()
+    assert exit_code == 0
+    assert "secret-home" in captured.out
+
+
+def test_list_detailed_json_returns_objects(monkeypatch, capsys) -> None:
+    monkeypatch.setattr("wireless_passfinder.cli.NetshAdapter", lambda: FakeAdapter())
+
+    exit_code = main(["list", "--detailed", "--json"])
+
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert exit_code == 0
+    assert isinstance(payload, list)
+    assert payload[0]["name"] == "HomeWiFi"
+    assert payload[0]["password"] == "********"
+
+
+def test_list_show_keys_without_detailed_returns_error(monkeypatch, capsys) -> None:
     monkeypatch.setattr("wireless_passfinder.cli.NetshAdapter", lambda: FakeAdapter())
 
     exit_code = main(["list", "--show-keys"])
 
     captured = capsys.readouterr()
-    assert exit_code == 0
-    assert "secret-home" in captured.out
+    assert exit_code == 2
+    assert "--show-keys can only be used with --detailed" in captured.err
 
 
 def test_show_json_masks_by_default(monkeypatch, capsys) -> None:
