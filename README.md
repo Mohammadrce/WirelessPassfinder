@@ -15,11 +15,12 @@ It reads saved WLAN profiles from your own machine via `netsh` and shows them wi
 
 ## Features
 
-- `wpfinder list`: show all saved profiles in table or JSON
+- `wpfinder list`: fast list of profile names (table or JSON)
+- `wpfinder list --detailed`: full profile metadata and password field
 - `wpfinder show <profile>`: inspect one profile
 - `wpfinder export --output <file.json>`: export all profiles to JSON
 - Password masking by default (`********`)
-- Optional plaintext output only with explicit flags (`--show-keys` / `--show-key`)
+- Optional plaintext output only with explicit flags (`--detailed --show-keys` / `--show-key`)
 
 ## Requirements
 
@@ -46,9 +47,10 @@ python -m pip install -e .
 
 ```bash
 wpfinder list
-wpfinder list --show-keys
 wpfinder list --json
 wpfinder list --filter Home
+wpfinder list --detailed
+wpfinder list --detailed --show-keys
 
 wpfinder show "HomeWiFi"
 wpfinder show "HomeWiFi" --show-key
@@ -57,6 +59,13 @@ wpfinder show "HomeWiFi" --json
 wpfinder export --output wifi_profiles.json
 wpfinder export --output wifi_profiles_plain.json --show-keys
 ```
+
+## Upgrade notes (v0.2.1)
+
+- `wpfinder list` is now fast-by-default and prints profile names only.
+- Use `wpfinder list --detailed` for authentication/cipher/key/password columns.
+- `--show-keys` now requires `--detailed` for `list`.
+- Legacy `python wifi.py` entry path has been removed.
 
 ## Security notice
 
